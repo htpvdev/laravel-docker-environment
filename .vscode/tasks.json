@@ -1,0 +1,22 @@
+{
+  // See https://go.microsoft.com/fwlink/?LinkId=733558
+  // for the documentation about the tasks.json format
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "./src/vendor の同期",
+      "type": "shell",
+      "command": "docker compose cp php:/var/www/html/src/vendor ${workspaceFolder}/src"
+    },
+    {
+      "label": "Laravel Vite のビルド",
+      "type": "shell",
+      "command": "docker run -it --rm -v \"${workspaceFolder}/src:/src\" -v \"/src/storage/framework\" -v \"/src/vendor\" -v \"node_modules:/src/node_modules\" node:lts-slim bash -c 'cd /src && npm i && npm run build'"
+    },
+    {
+      "label": "Laravel Vite の開発用サーバを起動",
+      "type": "shell",
+      "command": "docker run -it --rm -p 5173:5173 -v \"${workspaceFolder}/src:/src\" -v \"/src/storage/framework\" -v \"/src/vendor\" -v \"node_modules:/src/node_modules\" node:lts-slim bash -c 'cd /src && npm i && npm run dev'"
+    },
+  ]
+}

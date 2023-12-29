@@ -1,0 +1,36 @@
+version: "3.8"
+services:
+  php:
+    build: ./docker-compose/php
+    ports:
+      - 80:80
+    volumes:
+      - ./src:/var/www/html/src
+      - framework:/var/www/html/src/storage/framework
+      - vendor:/var/www/html/src/vendor
+      - /var/www/html/src/node_modules
+
+  db:
+    build: ./docker-compose/db
+    volumes:
+      - db-store:/var/lib/db
+    ports:
+      - 3306:3306
+
+  # phpMyAdminを使ってデータベースを操作する場合は、以下のコメントアウトを外すこと
+  # phpmyadmin:
+  #   image: phpmyadmin
+  #   environment:
+  #     - PMA_ARBITRARY=1
+  #     - PMA_HOSTS=db
+  #     - PMA_USER=root
+  #     - PMA_PASSWORD=password
+  #   links:
+  #     - db
+  #   ports:
+  #     - 3001:80
+
+volumes:
+  framework:
+  vendor:
+  db-store:

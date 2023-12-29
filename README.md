@@ -24,7 +24,7 @@ dbコンテナ ... MySQLのDBサーバ。
 | DBクライアント    | 自由に選ぶこと(phpMyAdminだけ用意している) |
 
 
-## 環境構築
+## 「初回」環境構築
 
 ### 前提条件
 以下のアプリをインストールしておくこと。
@@ -56,6 +56,17 @@ docker compose exec php bash -c "chmod 707 -R storage"
 ```
 ```sh
 docker compose cp php:/var/www/html/src/vendor ./src
+```
+
+Laravelがデータベースに接続するためのDBホスト/ユーザ名/パスワード等を、src/.envに入力する。
+.envの中の、以下の項目をそれぞれ、この通りに書き換えること。
+```ini
+DB_CONNECTION=mysql
+DB_HOST=db
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=user
+DB_PASSWORD=password
 ```
 
 以上で環境構築は終了。解説は下の方で。
@@ -159,6 +170,34 @@ plugins: [
 docker run -it --rm -p 5173:5173 -v "$(pwd)/src:/src" -v "/src/storage/framework" -v "/src/vendor" -v "node_modules:/src/node_modules" node:lts-slim bash -c "cd /src && npm i && npm run dev"
 ```
 - このコマンドと同じ効果のあるVSCodeタスクを作成しているので、「タスクの実行」から「Laravel Vite の開発用サーバを起動」を実行することでも起動できる。
+
+
+## 2回目以降の環境構築について
+
+あなたがこのテンプレートを使って開発環境を作り、このテンプレートごとソースコードをGit等で共有して別のコンピュータなどで再び環境構築する、という場合は、「初回環境構築」のときとは違う手順になる。
+
+なぜなら、すでにLaravelがインストールされているからだ。
+Laravelインストール時には.envなどのGitで追跡しないファイルも自動で生成してくれているが、同じ環境を再現する場合は、それを手動で作らなくちゃいけない。
+
+### 手順
+
+1. src/.envを作成する。.envの内容はそれぞれ任意のものにすること。
+2. docker-compose.ymlがあるディレクトリで、以下のコマンドを順に実行する
+```sh
+docker compose up -d --build
+```
+```sh
+docker compose exec php composer install
+```
+```sh
+docker compose cp "$(pwd)/src/storage" "php:/var/www/html/src"
+```
+```sh
+docker compose exec php bash -c "chmod -R 707 storage && php artisan key:generate && php artisan migrate --seed"
+```
+
+以上。
+
 
 ## 解説
 

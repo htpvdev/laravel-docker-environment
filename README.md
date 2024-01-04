@@ -218,6 +218,47 @@ docker compose exec php bash -c "chmod -R 707 storage && php artisan key:generat
 以上。
 
 
+## おまけ -PHPのみの動作環境を作る-
+
+PHPの実行環境を手軽に作る手順は以下の通り。
+
+### 【準備編】
+docker-compose.ymlがあるディレクトリで、以下のコマンドを実行する。
+```sh
+docker build ./docker-compose/php -t php-local-image
+```
+
+以上で、実行環境の準備は完了。いつでも、手軽に使い捨てのPHP実行環境を起動できる。
+
+
+### 【実行編】
+使い捨てのPHPサーバを起動するときは、ドキュメントルートにしたいディレクトリで以下のコマンドを実行する。
+```sh
+docker run -it --rm -v "$(pwd):/var/www/html/src/public" php-local-image
+```
+
+また、PHPデバッガが起動したいときは、ドキュメントルートにしたいディレクトリに対して.vscodeフォルダをコピーして設置しておく。
+
+### 【このPHP環境について解説】
+
+この2つのコマンドはそれぞれ何をしているかを解説する。
+
+```sh
+docker build ./docker-compose/php -t php-local-image
+```
+このコマンドは、あなたのPCのストレージに「php-local-image」という名前のDockerイメージを作成して保存している。  
+このイメージの構成は、`./docker-compose/php`ディレクトリのDockerfileを参照している(docker-compose.ymlでいうphpコンテナ)。  
+このDockerfileの構成では、PHPとComposer等がインストールされているApacheサーバが起動する設定になっている。  
+このようにイメージを保存しておくことで、いつでもこの構成の新規コンテナを作ることができる。
+
+---
+
+```sh
+docker run -it --rm -v "$(pwd):/var/www/html/src/public" php-local-image
+```
+このコマンドでは、指定したディレクトリをマウントしてphp-local-imageをもとにしたコンテナを新規作成して実行している。  
+このコマンドを実行することで、PHPサーバが起動する。起動中は実行ログがコンソールに表示されていて、`Ctrl + C`を押せばコンテナごと終了する。
+
 ## 解説
 
 ### 環境構築手順の解説
